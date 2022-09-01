@@ -1,0 +1,839 @@
+  - String (StringJoiner)
+  - StringBuffer  & StringBuilder
+  - StringTokenizer
+  - Регулярные выражения (example:  RegExp)
+
+--------------------------------------- Основные операции со строками: -------------------------------------------------
+1. Соединение/разделение строк
+       - concat()   -   объединяет строки
+                            String str1 = "Java";
+                            String str2 = "Hello";
+                            str2 = str2.concat(str1)    // HelloJava
+
+       - join()     -   соединяет строки с учетом разделителя
+                            String str3 = String.join("+", "Hello", "Java"); // Hello+Java
+
+                            List<String> databases = Arrays.asList("OracleDB", "Mongo", "PostgreSQL", "MySQL");
+                                String string = String.join(", ", databases);
+                                System.out.println(string);                 // OracleDB, Mongo, PostgreSQL, MySQL
+
+                StringJoiner joiner = new StringJoiner(", ");               // добавляет разделитель, между словами
+                    joiner.add("John");
+                    joiner.add("Danny");
+                    joiner.add("Lui");
+                System.out.println(joiner);                                 // John, Danny, Lui
+
+                StringJoiner joiner2 = new StringJoiner("-", "[", ")");    // добавляет разделитель, префикс, суффикс
+                    joiner2.add("John");
+                    joiner2.add("Danny");
+                    joiner2.add("Lui");
+                System.out.println(joiner2);                                // [John-Danny-Lui)
+
+       - split()     -   разбивает строку на подстроки по определенному разделителю
+                         (разделитель - какой-нибудь символ или набор символов передается в качестве параметра в метод)
+                            String text = "FIFA will never regret it";
+                            String[] words = text.split(" ");               //   [FIFA, will, never, regret, it]
+
+2. Извлечение символов и подстрок
+       - charAt(int index)   -   возвращает символ строки по индексу
+                            char c = str.charAt(2);  //вернет второй символ
+                - если надо извлечь сразу группу символов или подстроку, то  можно использовать метод
+                            getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin).
+                                    - srcBegin  -   индекс в строке, с которого начинается извлечение символов
+                                    - srcEnd    -   индекс в строке, до которого идет извлечение символов
+                                    - dst       -   массив символов, в который будут извлекаться символы
+                                    - dstBegin  -   индекс в массиве dst, с которого надо добавлять извлеченные из строки символы
+
+                            String str = "Hello world!";
+                            int start = 6;
+                            int end = 11;
+                            char[] dst=new char[end - start];
+                            str.getChars(start, end, dst, 0);
+                            System.out.println(dst);            // world
+
+3. Cравнение строк
+       - equals()          -   сравнивает строки с учетом регистра
+       - equalsIgnoreCase()   -   сравнивает строки без учета регистра
+       - regionMatches()   -   сравнивает отдельные подстроки в рамках двух строк
+                            boolean regionMatches(int toffset, String other, int oofset, int len)
+                            boolean regionMatches(boolean ignoreCase, int toffset, String other, int oofset, int len)
+                                    - ignoreCase  -   игнорировать ли регистр символов при сравнении (true -регистр игнорируется)
+                                    - toffset     -   начальный индекс в вызывающей строке, с которого начнется сравнение
+                                    - other       -   строка, с которой сравнивается вызывающая
+                                    - oofset      -   начальный индекс в сравниваемой строке, с которого начнется сравнение
+                                    - len         -   количество сравниваемых символов в обеих строках
+
+                            String str1 = "Hello world";
+                            String str2 = "I work";
+                            boolean result = str1.regionMatches(6, str2, 2, 3);
+                            System.out.println(result);             // true
+                                    - сравнивает 3 символа с 6-го индекса первой строки ("wor")
+                                      и 3 символа со 2-го индекса второй строки ("wor")
+       - int compareToIgnoreCase(String str)
+       и int сompareTo(String str)*  -   сравнивают две строки, а также позволяют узнать больше ли одна строка, чем другая или нет
+                - если возвращаемое значение больше 0, то первая строка больше второй,
+                - если меньше нуля, то, наоборот, вторая больше первой,
+                - если строки равны, то возвращается 0.
+                            String str1 = "hello";
+                            String str2 = "world";
+                            String str3 = "hell";
+                            System.out.println(str1.compareTo(str2));       // -15 - str1 меньше чем strt2
+                            System.out.println(str1.compareTo(str3));       // 1 - str1 больше чем str3
+             * - вычисляет по следующему правилу:
+                    - выполняется посимвольное сравнение строк до первоо отличного символа (или оконч одной из строк);
+                    - если встретились не совпадающие символы, то в качестве значения возвращается разность кодов
+                      несовпадающих символов (код символа строки объекта вызова минус код символа строки-аргумента метода)
+                    - если при сравнении строк заканчивается одна из строк, то в качестве результата метода возвращается
+                      разность длин строк (длина строки объекта вызова минус длина строки объека-аргумента метода)
+                    - если строки одинаковые, методом возвращается нулевое значение
+
+4. Поиск в строке
+       - indexOf()      -   находит индекс первого вхождения подстроки в строку (
+       - lastIndexOf()  -   находит индекс последнего вхождения подстроки в строку
+                - если подстрока не будет найдена, то оба метода возвращают -1
+                - можно указать второй целочисленный аргумент, определяет индекс начало поиска
+                                String str = "Hello world";
+                                int index1 = str.indexOf('l');      // 2
+                                int index2 = str.indexOf("wo");     //6
+                                int index3 = str.lastIndexOf('l');  //9
+       - startsWith()   -   определяет, начинается ли строка с подстроки
+       - endsWith()     -   определяет, заканчивается ли строка на определенную подстроку
+                                String str = "myfile.exe";
+                                boolean start = str.startsWith("my");       //true
+                                boolean end = str.endsWith("exe");          //true
+
+5. Замена в строке
+       - replace()   -   заменяет в строке одну подстроку на другую
+                                String str = "Hello world";
+                                String replStr1 = str.replace('l', 'd');            // Heddo wordd
+                                String replStr2 = str.replace("Hello", "Bye");      // Bye world
+
+6. Обрезка строки
+       - trim()       -   удаляет начальные и конечные пробелы
+                                String str = "  hello world  ";
+                                str = str.trim();           // hello world
+       - substring()   -   возвращает подстроку, начиная с определенного индекса до конца или до определенного индекса
+                                String str = "Hello world";
+                                String substr1 = str.substring(6);              // world
+                                String substr2 = str.substring(3,5);            //lo
+
+7. Изменение регистра
+       - toLowerCase()   -   переводит все символы строки в нижний регистр
+       - toUpperCase()   -   переводит все символы строки в верхний регистр
+                                str.toLowerCase()           // hello world
+                                str.toUpperCase()           // HELLO WORLD
+
+8. Преобразование объекта в строковый вид
+        - valueOf()  -   преобразует из базвого типа в строку
+              - String.valueOf(boolean b)   - boolean  в строку
+              - String.valueOf(char c)      - char в строку
+              - String.valueOf(char[] data) - данные массива char в строку
+              - String.valueOf(double d)    - double в строку
+              - String.valueOf(float f)     - float в строку
+              - String.valueOf (int i)      - int в строку
+
+9. Переместить объект String  в Pool String
+        - intern()  -  переносит String из объекта в  Pool String
+               String one = "one";
+               String two = new String("one").intern();
+                    System.out.println(one.equals(two));         // true
+                    System.out.println(one == two);              // true
+
+10. Разное:
+        - getBytes()    - преобразование символов в числовые значения типа byte (byte - массив)
+                             - System.out.println(Arrays.toString("morder".getBytes()));       // [109, 111, 114, 100, 101, 114]
+
+        - toCharArray()  - преобразовывает текстовую строку в символьный массив
+                              - System.out.println(Arrays.toString("morder".toCharArray()));   // [m, o, r, d, e, r]
+
+        - getСhars()    - копирует символы из данной строки в массив символов назначения
+                              - getChars(int srcBegin, int srcEnd, char[] dst,  int dstBegin)
+                                    - srcBegin  — индекс первого символа в строке для копирования;
+                                    - srcEnd    — индекс последнего символа в строке для копирования;
+                                    - dst       — массива назначения;
+                                    - dstBegin  — начальное смещение в массиве назначения.
+
+                                            String Str1 = new String("Добро пожаловать на ProgLang.su");
+                                            char[] Str2 = new char[7];
+                                            Str2[0] = 'A';
+                                            try {
+                                                Str1.getChars(3, 9, Str2, 1);
+                                                System.out.print("Скопированное значение: " );
+                                                System.out.println(Str2);
+                                            } catch (IndexOutOfBoundsException. ex) {
+                                                System.out.println("Возникает исключение...");
+                                            }
+                                            Результат: Скопированное значение: Aро пож
+
+
+
+---------------------------------------  StringBuffer  & StringBuilder -------------------------------------------------
+1. Объекты String являются неизменяемыми, поэтому все операции, которые изменяют строки, фактически приводят к созданию новой строки,
+что сказывается на производительности приложения.
+    Для решения этой проблемы существуют классы StringBuffer и StringBuilder.
+    Они напоминает расширяемую строку, которую можно изменять без ущерба для производительности.
+
+2. Классы являются практически двойниками (имеют одинаковые конструкторы, методы, которые одинаково используются)
+   Различие состоит в том, что:
+     - класс StringBuffer - синхронизированный и потокобезопасный
+  (его удобнее использовать в многопоточных приложениях, где объект данного класса может меняться в различных потоках)
+     - класс StringBuilder - не потокобезопасный
+  (его удобнее использовать, не в многопоточных приложениях. В однопоточных приложениях он работает быстрее, чем StringBuffer)
+
+3. StringBuffer/StringBuilder определяет четыре конструктора:
+                - StringBuffer/StringBuilder()
+                - StringBuffer/StringBuilder(int capacity)
+                - StringBuffer/StringBuilder(String str)
+                - StringBuffer/StringBuilder(CharSequence chars)
+    При всех операциях со строками StringBuffer / StringBuilder перераспределяет выделенную память.
+    Чтобы избежать слишком частого перераспределения памяти, StringBuffer/StringBuilder заранее резервирует некоторую область памяти,
+которая может использоваться.
+    Конструктор без параметров резервирует в памяти место для 16 символов.
+    Если мы хотим, чтобы количество символов было иным, то мы можем применить StringBuffer/StringBuilder(int capacity),
+который в качестве параметра принимает количество символов.
+    3-й и 4-й конструкторы обоих классов принимают строку и набор символов, при этом резервируя память для дополн 16 символов.
+    С помощью метода
+        -   capacity()          -   можем получить количество символов, для которых зарезервирована память.
+        -   ensureCapacity()    -   можем изменить минимальную емкость буфера символов
+                String str = "Java";
+                StringBuffer strBuffer = new StringBuffer(str);
+                System.out.println("Емкость: " + strBuffer.capacity());                 // 20 = 4(Java) + 16 резерв
+                strBuffer.ensureCapacity(32);
+                System.out.println("Емкость: " + strBuffer.capacity());                 // 42 - решение Java
+                System.out.println("Длина текста: " + strBuffer.length());              // 4
+    Чтобы получить строку, которая хранится в StringBuffer, мы можем использовать стандартный метод toString():
+                String str = "Java";
+                StringBuffer strBuffer = new StringBuffer(str);
+                System.out.println(strBuffer.toString());                       // Java
+
+По всем своим операциям  StringBuffer / StringBuilder напоминают класс String
+
+4.1 Получение и установка символов
+        - charAt()      -   получает символ по определенному индексу
+                StringBuffer strBuffer = new StringBuffer("Java");
+                char c = strBuffer.charAt(0);                           // J
+                System.out.println(c);
+        - setCharAt()   -   устанавливает символ по определенному индексу
+                strBuffer.setCharAt(0, 'c');
+                System.out.println(strBuffer.toString());               // cava
+        - getChars()    -   получает набор символов между определенными индексами:
+                StringBuffer strBuffer = new StringBuffer("world");
+                int startIndex = 1;
+                int endIndex = 4;
+                char[] buffer = new char[endIndex-startIndex];
+                strBuffer.getChars(startIndex, endIndex, buffer, 0);
+                System.out.println(buffer);                             // orl
+
+4.2 Добавление в строку
+        - append()    -   добавляет подстроку в конец StringBuffer
+                StringBuffer strBuffer = new StringBuffer("hello");
+                strBuffer.append(" world");
+                System.out.println(strBuffer.toString()); // hello world
+        - insert()    -   добавляет строку или символ по определенному индексу в StringBuffer
+                StringBuffer strBuffer = new StringBuffer("word");
+                strBuffer.insert(3, 'l');
+                System.out.println(strBuffer.toString()); //world
+
+4.3 Удаление символов
+        - delete()    -   удаляет все символы с определенного индекса о определенной позиции
+                StringBuffer strBuffer = new StringBuffer("assembler");
+                strBuffer.delete(0,2);
+                System.out.println(strBuffer.toString());                       //sembler
+        - deleteCharAt() удаляет один символ по определенному индексу:
+                strBuffer.deleteCharAt(6);
+                System.out.println(strBuffer.toString());                       //semble
+
+4.4 Обрезка строки
+        - substring()    -   обрезает строку с определенного индекса до конца, либо до определенного индекса
+                StringBuffer strBuffer = new StringBuffer("hello java!");
+                String str1 = strBuffer.substring(6);                           // обрезка строки с 6 символа до конца
+                System.out.println(str1);                                       //java!
+
+                String str2 = strBuffer.substring(3, 9);                        // обрезка строки с 3 по 9 символ
+                System.out.println(str2); //lo jav
+
+4.5 Изменение длины
+        - setLength()    -   для изменения длины StringBuffer (не емкости буфера символов)
+                - если StringBuffer увеличивается, то его строка просто дополняется в конце пустыми символами,
+                - если уменьшается - то строка по сути обрезается:
+                            StringBuffer strBuffer = new StringBuffer("hello");
+                            strBuffer.setLength(10);
+                            System.out.println(strBuffer.toString());                       //"hello     "
+
+                            strBuffer.setLength(4);
+                            System.out.println(strBuffer.toString());                       //"hell"
+
+4.6 Замена в строке
+        - replace()    -   для замены подстроки между определенными позициями в StringBuffer на другую подстроку
+                StringBuffer strBuffer = new StringBuffer("hello world!");
+                strBuffer.replace(6,11,"java");
+                        - 6 -  указывает, с какой позиции надо начать замену
+                        - 11 - указывает, до какой позиции заменять
+                        - "java" - указывает на подстроку замены
+                System.out.println(strBuffer.toString());                   //hello java!
+
+4.7 Обратный порядок в строке
+        - reverse()    -   меняет порядок в StringBuffer на обратный
+                StringBuffer strBuffer = new StringBuffer("assembler");
+                strBuffer.reverse();
+                System.out.println(strBuffer.toString());                   //relbmessa
+
+
+
+----------------------------------------------  StringTokenizer  -------------------------------------------------------
+    1.  Класс StringTokenizer предназначен для разложения строки на составляющие.
+            - под токенацией понимается процесс разделения последовательности строки на части.
+            - будучи удобным в использовании, StringTokenizer имеет серьезные функциональные ограничения:
+                    - раскладывает входную строку на части согласно переданных ему списка разделителей
+                    - не выполняет проверку на наличие разделителя внутри подстроки и не возвращает пустую строку нулевой длины,
+                      если во входном потоке обнаружена последовательность разделителей
+
+    2.1 Для создания экземпляра StringTokenizer можно использовать один из следующих конструкторов*:
+            - StringTokenizer(String str)	            -   раскладывает строку на части, используя в качестве разделителя
+                                                            символы пробела " ", табуляции "\t", перевода строки "\n" и возврата каретки "\r"
+            - StringTokenizer(String str, String delim)	-       раскладывает строку на части, используя в качестве разделителя строку delim
+            - StringTokenizer(String str, String delim,
+                              boolean returnDelims)	    -   тоже что и предыдущий, но если returnDelims установлен в true,
+                                                            разделители также возвращаются в качестве части строки
+
+            * - если строка "str" неопределена, т.е. равна null, то вызывается исключение NullPointerException.
+                    Пример:
+                        String s = "Тестовая строка, используемая для разложения на слова";
+                        StringTokenizer st = new StringTokenizer(s, " \t\n\r,.");
+                        while (st.hasMoreTokens()) {
+                                System.out.println(st.nextToken());                 // Выводим каждое слово в консоль
+                        }
+
+    2.2. ОСОБЕННОСТИ использования класса StringTokenizer
+            а) Конструктор StringTokenizer(String str)
+                - не выполняет проверку наличия в строке подстроки
+                        - поэтому строка "Привет. Завтра \"21 сентября \" мы идем в театр." разбивается на следующие части:
+                                [Привет., Завтра, "21, сентября, ", мы, идем, в, театр.]
+                                                    // вместо
+                                [ Привет., Завтра, "21 сентября "  , мы, идем, в, театр.]
+
+            б) Конструктор StringTokenizer(String str, String delim)
+                -  не отслеживает последовательное появление разделителя во входном потоке
+                        - поэтому если строку "book, author, publication,,,date published" разложить на части, используя в качестве разделителя
+                          символ запятой ",", то получим набор из 4-x слов
+                                [ book, author, publication, date published ]
+                                                    // вместо шести значений
+                                [ book, author, publication, "", "", date published ],     где "" означает строку нулевой длины
+
+                        Чтобы получить все шесть частей необходимо использовать третий конструктор и установить параметр returnDelims в true.
+                                - особенность установки параметра returnDelims в true, является очень важной
+                                        - особенно когда текстовые данные поступают динамически и их необходимо раскладывать на составляющие
+                                          и записывать в базу данных.
+                                        - в этом случае необходимо получить значения для всех полей таблицы
+
+            в) Конструктор StringTokenizer(String str, String delim, boolean returnDelims)
+                - не будет работать также и в том случае, когда информационная часть строки соответствует разделителю и находится внутри подстроки
+                    Например после токенации следующей строки :         "book, author, publication,\",\",date published"
+                                [ book, author, publication, ", ", date published ]   - получим шесть частей
+                                                    // вместо пяти
+                                [ book, author, publication, ',', date published ]
+
+                        В этом случае использование третьего конструктора с установленным в true значением returnDelims также не поможет.
+
+    3. Методы класса StringTokenizer
+        -   int countTokens()	            -   метод возвращает количество слов в тексте
+        -   boolean hasMoreElements()	    -   метод возвращает логическое значение, определяющее, есть ли в тексте еще слова
+        -   boolean hasMoreTokens()	        -   метод возвращает значение
+                                                      - true    - если в тексте осталось хотя бы одно слово
+                                                      - false   - в противном случае
+        -   Object nextElement()	        -   возвращает объект, на который указывает токенайзер (слеюущее слово)
+        -   String nextToken()	            -   возвращает лексему (строку), на который указывает токенайзер
+                                                (возвращает в виде строки (объект класса String)
+        -   String nextToken(String delim)	-   возвращает лексему (строку), на который указывает токенайзер согласно разделителя delim
+
+
+    4. Адаптивный токенайзер, CustomTokenizer
+        - Также можно создать свой токенайзер на все случаи жизни - но это очень затратное по временным ресурсам и тп.
+                Как пример:
+                        Решения одной из рассмотренных выше проблем
+                                - как исключить из анализа/разложения текст,
+                                - обрамленный кавычками (двойными, одинарными) или разного рода скобками
+
+                        Суть решения:
+                                - необходимо в токенайзер передать модифицированную строку для анализа,
+                                  где проблемные участки текста заменены заглушками
+                                - при извлечении токенов, вместо заглушек вернуть их исходное значение
+                                - то есть текст предварительно, перед передачей токенайзеру для разложения,
+                                  обрабатывается и значение токена восстанавливается, перед возвращением.
+
+                            public class CustomTokenizer{
+                                    private  StringTokenizer tokenizer = null;
+                                    private  int tokenNum = 0;
+                                    private  int totalTokens = 0;
+                                        private  final  String QUOTE = "\"";
+                                            private  Map<String, String>  substitutes;                      // шаблон заглушки
+                                                private  final  String SUBSTITUTE  = "__SUBSTITUTE__";
+
+                            //------------------------------------------------------------------------------------------
+                            /* Конструктор     @param text текстовая строка
+                                               @param delim строка разделителей */
+
+                            public CustomTokenizer(String text, String delim){
+                                    substitutes = new HashMap <String, String>();
+                                    tokenizer = new StringTokenizer(setSubstitute(text), delim, true);
+                            }
+
+                            //------------------------------------------------------------------------------------------
+                            /* Конструктор     @param text текстовая строка
+                                               @param delim строка разделителей
+                                               @param includeDelim флаг включения разделителей как токенов  */
+
+                            public CustomTokenizer(String str, String delim, boolean includeDelim){
+                                    tokenizer = new StringTokenizer(setSubstitute(str), elim, includeDelim);
+                            }
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция замены "проблемного" текста в кавычках  заглушками.
+                               Проблемный текст в строке, выделенный  двойными кавычками, заменяется
+                                        @param text исходный текст
+                                        @return измененный текст */
+
+                            private String setSubstitute(final String text){
+                                    String temp = text;
+                                    int id = 0;
+                                    int startQuote = temp.indexOf(QUOTE, 0);                        // Определение начала и конца проблемного кода
+                                    int endQuote = -1;
+                                    if (startQuote >= 0 )
+                                        endQuote = temp.indexOf(QUOTE, startQuote + 1);
+                                    while (((startQuote >= 0) && (endQuote > startQuote))) {        // Цикл перебора текста
+                                        String txt = temp.substring(startQuote, endQuote + 1);      // Извлечение проблемного текста
+                                        String key = SUBSTITUTE + String.valueOf(id++);             // Определение ключа
+                                        temp = temp.replaceFirst(txt, key);                         // Замена проблемного текста заглушкой
+                                        substitutes.put(key, txt);                                  // Сохранение проблемного текста с ключом
+                                        startQuote = temp.indexOf(QUOTE, 0);                        // Подготовка к следующему циклу
+                                        if (startQuote >= 0)
+                                            endQuote = temp.indexOf(QUOTE,startQuote+1);
+                                    }
+                            return temp;}
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция возвращения следующего токена строки  @return следующий токен */
+                            public String nextToken(){
+                                    String sToken = tokenizer.nextToken();
+                                    if (substitutes.containsKey(sToken.trim()))
+                                        sToken = substitutes.get(sToken.trim());
+                                    tokenNum++;
+                            return sToken;}
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция проверки наличия оставшихся токенов @return логическое значение true, если имеется еще токен */
+                            public boolean hasMoreTokens() {
+                                    if (totalTokens == 0)
+                                        totalTokens = countTokens();
+                                    return (tokenNum < totalTokens);}
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция проверки наличия оставшихся токенов @return логическое значение true, если имеется еще токен */
+                            public boolean hasMoreElements() {
+                                return hasMoreTokens();}
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция получения следующего токена  @return текущий токен строки типа Object */
+                            public Object nextElement() {
+                                return nextToken(); }
+
+                            //------------------------------------------------------------------------------------------
+                            /* Функция определения количества токенов в строке @return количество токенов */
+                            public int countTokens() {
+                                return tokenizer.countTokens();}
+
+                            //------------------------------------------------------------------------------------------
+                            public static void main(String[] args){
+                                String string;
+                                        //      string = "hi, hello,, \"how, are, qrt, u\", good, " + "\"fine, hty, great\", data";
+                                        //      string = "hi, how, \"are, u\", hello, \"how, are\", u";
+                                string = "Привет. Завтра \"21 сентября \" " + "мы идем в театр.";
+                                System.out.println("~~~ Исходная строка ~~~\n" + string);
+                                CustomTokenizer tokenizer = new CustomTokenizer(string, " .", false);
+                                System.out.println("\nколичество токенов = " + tokenizer.countTokens());
+                                System.out.println("\n~~~ Список токенов ~~~");
+                                int i = 0;
+                                while(tokenizer.hasMoreTokens())
+                                    System.out.println("" + ++i + " = " + tokenizer.nextToken());
+                            }
+                        }
+
+        В данном токенайзере имеется две функции, код которых можно модифицировать под разные случаи жизни:
+            - String setSubstitute(final String text)   -   функция замены в исходном тексте различного рода проблемных участков заглушками
+            - String nextToken()                        -   функция получения токенов, и, при необходимости, восстановления их исходных значений
+
+        Результат выполнения программы выведет в консоль следующую информацию :
+                                ~~~ Исходная строка ~~~
+                                Привет. Завтра "21 сентября " мы идем в театр.
+
+                                количество токенов = 7
+
+                                ~~~ Список токенов ~~~
+                                1 = Привет
+                                2 = Завтра
+                                3 = "21 сентября "
+                                4 = мы
+                                5 = идем
+                                6 = в
+                                7 = театр
+
+
+--------------------------------------------  Регулярные выражения  ----------------------------------------------------
+1. Мощный инструмент для обработки строк (позволяют задать шаблон, которому должна соответствовать строка или подстрока)
+
+2. split() в качестве параметров может принимать регулярное выражение, которое представляет критерий разделения строки
+                String text = "FIFA will never regret it";
+                String[] words = text.split("\\s*(\\s|,|!|\\.)\\s*");
+                    -\\s*  -  получаем неопределенное количество идущих подряд пробелов
+                    (неважно, сколько пробелов между словами; причем пробелов может вообще не біть)
+                            - \\s  -  пробел
+                            - *    -  символ может присутствовать от 0 до бесконечного количества раз
+                    - ()   -  указывается группа выражений, которая может идти после неопределенного количества пробелов
+                    (группа позволяет определить набор значений через вертикальную черту, и подстрока должна
+                    соответствовать одному из этих значений)
+                    -\\s|,|!|\\.  -  подстрока может соответствовать пробелу, запятой, восклицательному знаку или точке
+                           - \\.  -  так как . специальный знак, его нужно экранировать
+
+3. matches()  принимает регулярное выражение и возвращает true, если строка соответствует выражению
+               String input = "+12343454556";
+               boolean result = input.matches("(\\+*)\\d{11}");
+                   - (\\+*)   - вначале может идти знак плюса, но также он может отсутствовать
+                   - \\d      - представляет цифровой символ;
+                   - {11}     - сколько раз данный тип символов должен повторяться
+               Итого: ищем строку, где вначале может идти знак + (может и не быть), а потом идет 11 цифровых символов
+
+4. класс Pattern
+    - регулярное выражение представляет шаблон для поиска совпадений в строке
+    - для задания шаблона и поиска подстрок в строке, которые удовлетворяют шаблону, определены классы Pattern и Matcher
+
+       - String C_Pattern_Algorithms.pattern()  - возвращает исходное строковое представление регулярного выражения,
+                             из которого был создан объект Pattern
+                       Pattern C_Pattern_Algorithms.pattern = Pattern.compile("abc");
+                       System.out.println(Pattern.C_Pattern_Algorithms.pattern())//"abc"
+
+       - boolean matches(String C_Pattern_Algorithms.pattern, CharSequence input)  - статический метод в классе Pattern,
+              который необходим для простого поиска соответствий
+                 - возвращает true, если последовательность символов полностью соответствует шаблону строки C_Pattern_Algorithms.pattern
+                        public class StringsApp {
+                          public static void main(String[] args) {
+                             String input = "Hello";
+                             boolean found = Pattern.matches("Hello", input);
+                          }
+                        }
+       Как правило, для поиска соответствий применяется другой способ - использование класса Matcher
+
+       - int flags()  - статический метод в классе Pattern, возвращает значения параметра flags шаблона,
+                        которые были установлены при его создании, или 0, если этот параметр не был установлен
+                            Pattern C_Pattern_Algorithms.pattern = Pattern.compile("abc");
+                            System.out.println(C_Pattern_Algorithms.pattern.flags());                    // 0
+                            Pattern C_Pattern_Algorithms.pattern = Pattern.compile("abc",Pattern.CASE_INSENSITIVE);
+                            System.out.println(C_Pattern_Algorithms.pattern.flags());                    // 2
+
+       - String[] split(CharSequence text, int limit)  -  разбивает текст, переданный в качестве параметра на массив String.
+                                         параметр limit определяет предельное количество совпадений, которое ищется в тексте
+                        - при limit>0 – выполняется поиск limit-1 совпадений;
+                        - при limit<0 – выполняется поиск всех совпадений в тексте
+                       - при limit=0 – выполняется поиск всех совпадений в тексте, при этом пустые строки в конце массива отбрасываются;
+                            public static void main(String[] args) {
+                                String text = "Егор Алла Анна";
+                                Pattern C_Pattern_Algorithms.pattern = Pattern.compile("\\s");
+                                String[] strings = C_Pattern_Algorithms.pattern.split(text,2);
+                                for (String s : strings) {                                      // Егор
+                                    System.out.println(s);                                      // Алла Анна
+                                }
+                            String[] strings1 = C_Pattern_Algorithms.pattern.split(text);
+                                for (String s : strings1) {                                     //Егор
+                                    System.out.println(s);                                      //Алла
+                                }                                                               //Анна
+                            }
+
+5. Класс Matcher
+       - boolean matches()  -  возвращает true, если вся строка совпадает с шаблоном
+       - boolean find()     -  возвращает true, если в строке есть подстрока, которая совпадает с шаблоном, и переходит к этой подстроке
+       - String group()     -  возвращает подстроку, которая совпала с шаблоном в результате вызова метода find.
+                                    - если совпадение отсутствует, то метод генерирует исключение IllegalStateException
+       - int start()        -  возвращает индекс текущего совпадения
+       - int end()          -  возвращает индекс следующего совпадения после текущего
+       - String replaceFirst(String str)  - заменяет первое найденное совпадение на str и возвращает измененную строку с учетом замены
+       - String replaceAll(String str)    -  заменяет все найденные совпадения подстрокой str и возвращает измененную строку с учетом замен
+
+                    public static void main(String[] args) {
+                        String text = "Егор Алла Анна";
+                        Pattern C_Pattern_Algorithms.pattern = Pattern.compile("А.+?а");
+
+                        Matcher matcher = C_Pattern_Algorithms.pattern.matcher(text);
+                        while (matcher.find()) {
+                            int start=matcher.start();
+                            int end=matcher.end();
+                            System.out.println("Найдено совпадение " + text.substring(start,end) +
+                                                " с "+ start + " по " + (end-1) + " позицию");
+                        }
+                        System.out.println(matcher.replaceFirst("Ира"));
+                        System.out.println(matcher.replaceAll("Ольга"));
+                        System.out.println(text);
+                    }
+                                    Результат:          Найдено совпадение Алла с 5 по 8 позицию
+                                                        Найдено совпадение Анна с 10 по 13 позицию
+                                                        Егор Ира Анна
+                                                        Егор Ольга Ольга
+                                                        Егор Алла Анна
+                    P.S.: replaceFirst и replaceAll создают новый объект String – строку, представляющую собой исходный текст,
+                          в котором совпадения с шаблоном заменены на текст, переданный методу в качестве аргумента
+
+       Для использования класса Matcher, вначале надо создать объект Pattern с помощью статического метода compile(),
+который позволяет установить шаблон:
+                Pattern C_Pattern_Algorithms.pattern = Pattern.compile("Hello");
+                           - compile() возвращает объект Pattern, который мы затем можем использовать в программе
+       В классе Pattern  matcher(String input)  -  в качестве параметра принимает строку, где надо проводить поиск,
+и возвращает объект Matcher
+
+                    public class StringsApp {
+                      public static void main(String[] args) {
+                          String input = "Hello";
+                          Pattern C_Pattern_Algorithms.pattern = Pattern.compile("Hello");
+                          Matcher matcher = C_Pattern_Algorithms.pattern.matcher(input);
+                          boolean found = matcher.matches();
+                      }
+                    }
+
+пример:  нахождение не полного соответствия, а отдельных совпадений в строке
+
+                    public class StringsApp {
+                      public static void main(String[] args) {
+                          String input = "Hello Java! Hello JavaScript! JavaSE 8.";
+                          Pattern C_Pattern_Algorithms.pattern = Pattern.compile("Java(\\w*)");
+                          Matcher matcher = C_Pattern_Algorithms.pattern.matcher(input);
+                          while(matcher.find()){
+                                System.out.println(matcher.group());
+                         }
+                      }
+                    }
+                    - Java    - все совпадения в строке должны начинаться на Java
+                    - (\\w*)  - после "Java" в совпадении может находиться любое количество алфавитно-цифровых символов
+                    - matcher.find()    - позволяет переходить к следующему совпадению в строке
+                    - matcher.group()   - получаем каждое совпадение
+                                                                    Результат программы:            Java
+                                                                                                    JavaScript
+                                                                                                    JavaSE
+
+6. Замена в строке
+        - replaceAll()  -  делает замену всех совпадений
+                    String input = "Hello Java! Hello JavaScript! JavaSE 8.";
+                    Pattern C_Pattern_Algorithms.pattern = Pattern.compile("Java(\\w*)");
+                    Matcher matcher = C_Pattern_Algorithms.pattern.matcher(input);
+                    String newStr = matcher.replaceAll("HTML");
+                    System.out.println(newStr);                                     // Hello HTML! Hello HTML! HTML 8.
+
+        аналогично можно сделать так
+                    String myStr =input.replaceAll("Java(\\w*)", "HTML");
+                    System.out.println(myStr);                                      // Hello HTML! Hello HTML! HTML 8.
+
+
+7. Разделение строки на лексемы
+     - String[] split(CharSequence input) класса Pattern   -  можно разделить строку на массив подстрок по определенному разделителю
+
+пример:  хотим выделить из строки отдельные слова:
+                    public class StringsApp {
+                      public static void main(String[] args) {
+                          String input = "Hello Java! Hello JavaScript! JavaSE 8.";
+                          Pattern C_Pattern_Algorithms.pattern = Pattern.compile("[ ,.!?]");                         - 1 - вариант
+                          Pattern C_Pattern_Algorithms.pattern = Pattern.compile("\\s*(\\s|,|!|\\.)\\s*");           - 2 - вариант
+                          String[] words = C_Pattern_Algorithms.pattern.split(input);
+                          for(String word:words)
+                             System.out.print(word);
+                      }
+                    }
+                    Результат вариант 1:        Hello  Java  Hello  JavaScript  JavaSE  8   //с пробелом
+                    Результат вариант 2:        HelloJavaHelloJavaScriptJavaSE8             //без пробела
+
+8.1 Метасимволы для задания группы символов
+        \d	Цифра (0-9)
+        \D	Не цифра (любой символ кроме символов 0-9)
+        \s	Пустой символ (обычно пробел и символ табуляции)
+        \S	Непустой символ (всё, кроме символов, определяемых метасимволом \s)
+        \w	"Словесный" символ (символ, который используется в словах. Обычно все буквы, все цифры и символ подчёркивания ("_"))
+        \W	Всё, кроме символов, определяемых метасимволом \w
+
+                \d\d\d	    любое трехзначное число ("123", "719", "001")
+                \w\s\d\d	буква, пробел (или табуляция) и двузначное число ("A 01", "z 45", "S 18")
+                \d and \d	любая из следующих строк: "1 and 2", "9 and 5", "3 and 4"
+
+8.2  []  для описания подмножеств применяются символы
+            [] встреченные внутри регулярного выражения считаются одним символом, который может принимать значения,
+        перечисленные внутри этих скобок.
+            Тонкость работы метасимвол внутри квадратных скобок.
+                 - в синтаксис регулярных выражений существует ещё множество метасимволов, но практически все они работают только
+            вне секций описаний подмножеств
+                 - единственные метасимволы, которые работают внутри этих секций это:
+                        "\"  - все метасимволы из приведённой ранее таблицы будут работать
+                        "-"  - используется для задания набора символов из одного промежутка (например, все цифры могут быть заданы как "0-9").
+                        "^"  - если этот символ стоит первым в секции задания подмножества символов (и только в этом случае!)
+                               он будет рассматриваться как символ отрицания.
+                               Таким образом можно задать все символы, которые не описаны в данной секции.
+
+            [0-9A-Fa-f]	    цифра в шестнадцатеричной системе счисления
+            [\dA-Fa-f]	    то же самое, но с использованием метасимвола
+            [02468]	        четная цифра
+            [^\d]	        всё, кроме цифр (аналог метасимвола \D)
+            [a^b]	        любой из символов "a", "b", "^".
+                            здесь символ "^" не имеет какого-либо специального значения, потому что стоит не на первой позиции внутри []
+
+8.3 другие метасимволы
+    Как уже было сказано ранее, все они работают только вне секций описаний подмножеств символов (вне []).
+         - "^" и "$"   - используются для того, чтобы указать парсеру регулярных выражений на положение искомого текста в строке.
+                            "^"     -   указывает, что искомый текст должен находиться в начале строки
+                            "$"     -   указывает, что искомый текст должен находиться в конце строки
+
+    пример:
+            12 aaa bbb
+            aaa 27 ccc
+            aaa aaa 45
+                "(?m)\d\d" (не обращайте пока внимание на "(?m)")  - вернёт нам 3 значения: "12", "27", "45"
+                "(?m)^\d\d"  -  вернёт нам "12",так как ^ указывает, что должно находиться в начале строки
+                "(?m)\d\d$"  -  вернёт нам "45",так как $ указывает, что должно находиться в конце строки
+
+         а) "."       - указывает, что на данном месте в строке может находиться любой символ (за исключением символа перевода строки).
+                       (очень удобно использовать его, если вам нужно "пропустить" какую-нибудь букву в слове при проверке)
+    пример:
+           ".bc"  - найдёт в тексте и "abc" и "Abc" и "Zbc" и "5bc"
+
+         b) "|"       - используется для задания списка альтернатив.
+    пример:
+         "(красное|зелёное) яблоко"  - найдёт в тексте все словосочетания "красное яблоко" и "зелёное яблоко"
+
+         c) ("(" и ")") - позволяет получить из искомой строки дополнительную информацию
+                  - обычно, если парсер регулярных выражений ищет в тексте информацию по заданному выражению и находит её -
+                    он просто возвращает найденную строку;
+                  - однако, если он встречает внутри регулярного выражения круглые скобки, то он рассматривает содержимое этих скобок
+                    как ещё одно регулярное выражение, по которому необходимо произвести поиск;
+                  - парсер рекурсивно вызывает сам себя для поиска по новому регулярному выражению и использует результаты поиска
+                    для дальнейшей обработки основного регулярного выражения;
+                  - при этом, если поиск хотя бы по одному из внутренних регулярных выражений не увенчался успехом -
+                    поиск по всему регулярному выражению считается безуспешным.
+    пример:
+         "(красное|зелёное) яблоко"
+                  - парсер начинает разбор регулярного выражения и встречает выражение в скобках: "(красное|зелёное)";
+                  - парсер вызывает себя для поиска по найденному регулярному выражению;
+                  - получив результаты поиска, парсер подставляет по очереди каждый из полученных результатов на место выражения
+                    в скобках и смотрит, удовлетворяет ли найденный результат всем условиям основного регулярного выражения
+                    (в данном случае смотрит, есть ли после найденного слова слово "яблоко").
+                  - если всё в порядке - результаты поиска по каждому из имеющихся регулярных выражений для этого случая возвращаются,
+                    если нет - парсер просто переходит к следующему найденному фрагменту.
+                    Результат поиска внутреннего регулярного выражения для этого фрагмента при этом теряется.
+
+    заданный текст:     яблоко (красное) и (зелёное) яблоко и ещё одно (красное) яблоко и ещё одно яблоко, (зелёное)
+
+                  - поиск по внутреннему регулярному выражению даст 4 результата (выделены ()):
+                  - однако поиск по всему регулярному выражению даст всего 2 результата,
+                    потому как в остальных случаях условия основного регулярного выражения не выполняются, а именно:
+                                            яблоко красное и (зелёное яблоко) и ещё одно (красное яблоко) и ещё одно яблоко, зелёное
+
+                  - для этих двух случаев будет возвращён не только результат поиска по основному регулярному выражению,
+                    но и результат поиска по внутреннему регулярному выражению для каждого из найденных фрагментов
+                         - чтобы такого случая не было  необходимо добавить "?:"
+                                                (?:красное|зелёное) яблоко"
+
+пример:         когда получение результатов внутренних регулярных выражений может быть полезным
+                    - необходимо проверить, является ли строка семизначным телефонным номером с указанием кода города,
+                      и получить из неё код города и номер телефона:
+
+    \((\d{3,5})\)\s+(\d{3}-\d{2}-\d{2})
+                - первая круглая скобка здесь теряет свое специальное значение и будет рассматриваться как обычный символ;
+                - (\d{3,5})     - проверка кода города
+                - закрывающая круглая скобка, также лишена своего специального значения из-за символа обратного слэша, стоящего перед ней;
+                - \s+           - пропуск пустого места
+                - (\d{3}-\d{2}-\d{2})   - проверяет номер телефона
+
+    В данном примере есть 3 регулярных выражения - основное и два внутренних.
+                - основное выражение позволяет нам проверить, имеет ли строка необходимый нам формат;
+                - два внутренних - получить соответственно код города и номер телефона
+
+    "My phone is (095) 123-45-67"   - результатами поиска будут 3 строки:  "(095) 123-45-67"    "095"       "123-45-67"
+
+
+8.4 Квантификаторы
+        Группа метасимволов, определяющих количественные показатели.
+            - очень часто бывает необходимо указать, что какой-то символ должен повторяться определённое количество раз.
+
+        Особенностью квантификаторов является возможность использования их в разных режимах:
+        (по умолчанию квантификатор работает в жадном режиме. это )
+            - жадном            - означает, что он ищет максимально длинное совпадение в строке               // "А.+а"
+            - сверхжадномй                                                                                    // "А.++а"
+            - ленивом            - означает, что он ищет максимально короткое совпадение в строке             // "А.+?а"
+        Сверхжадный режим включается добавлением символа «+» после квантификатора, а ленивый – символа «?».
+
+        пример:  жадный режим
+                        public static void main(String[] args) {
+                                String text = "Егор Алла Александр";
+                                Pattern C_Pattern_Algorithms.pattern = Pattern.compile("А.+а");
+                                Matcher matcher = C_Pattern_Algorithms.pattern.matcher(text);
+                            while (matcher.find()) {
+                                System.out.println(text.substring(matcher.start(), matcher.end()));
+                            }
+                        }
+                        Результат:          Алла Алекса
+                                                - найдет первую букву А
+                                                - так как "." захватит весь текст до конца
+                                                - с конца будет искать  "а"
+
+        пример:  сверхжадный режим
+                        ........................................
+                        Pattern C_Pattern_Algorithms.pattern = Pattern.compile("А.++а");
+                        Результат:          ничего не найдет
+                                                - найдет первую букву А
+                                                - так как "." захватит весь текст до конца
+                                                - с конца не будет искать  "а"
+
+        пример:  ленивый  режим
+                        ........................................
+                        Pattern C_Pattern_Algorithms.pattern = Pattern.compile("А.+?а");
+                        Результат:          Алла
+                                            Алекса
+                                                - найдет первую букву А
+                                                - так как "." захватит доп буквы до первой буквы "a"
+                                                - так как еще конец текста не достигнут, начнет заново искать совпадения А и "a"
+
+Каждый из описанных ниже метасимволов определяет количественную характеристику символа, который находится непосредственно перед ним
+        "*"  - указывает, что символ должен быть повторен 0 или более раз
+               (т.е. символ может отсутствовать или присутствовать в любых количествах)
+                            пример:         "ab*c"            найдёт строки "ac", "abc", "abbc" и т.д.
+
+        "+"  - указывает, что символ должен быть повторен 1 или более раз
+               (т.е. символ обязан присутствовать, и может присутствовать в любых количествах)
+                            пример:         "ab+c"            "abc", "abbc", "abbbc" и т.д., но не найдёт строку "ac"
+
+        "?"  - указывает, что символ может как присутствовать, так и нет, но при этом не может повторяться более одного раза
+                            пример:         "ab?c"            "ac" и "abc", но не найдёт строку "abbc"
+
+                  Есть ещё одна тонкость в использовании метасимвола "?"
+                  Регулярное выражение:      ".+a"
+                    - ожидается, что оно вернёт нам часть текста до первого вхождения символа "a" в этот текст;
+                    - на самом делел результатом поиска будет весь текст до последнего вхождения символа "a".
+                    - суть в том, что по умолчанию количественные метасимволы "жадничают" и пытаются захватить как можно больший кусок текста
+                    - если это не нужно (как в нашем случае), то необходимо указать символ "?" после количественного метасимвола: ".+?a"
+
+        "{" и "}"  - определяют количественную характеристику символа.
+                     внутри скобок через запятую перечисляются минимальное и максимальное количество повторений символа.
+                            - при этом любой из параметров может быть опущен,
+                              а, кроме того, можно задать точное количество повторений, указав только одно число
+
+            пример:
+                        {2,4}   -   символ должен повториться минимум 2 раза, но не более 4
+                        {,5}    -   символ может отсутствовать (т.к. не задано минимальное количество повторений),
+                                    но если присутствует, то не должен повторяться более 5 раз.
+                        {3,}    -   символ должен повторяться минимум 3 раза, но может быть и больше.
+                        {4}     -   символ должен повторяться ровно 4 раза.
+
+8.5 Модификаторы регулярных выражений
+        Механизм регулярных выражений позволяет добавлять модификаторы, влияющие на обработку регулярного выражения
+            Запись модификаторов производится посредством указания последовательности   -   "(?модификатор)"
+            Для отмены действия модификатора используется запись                        -   "(?-модификатор)"
+
+                    i   -   включение режима case-insensitive, т.е. большие и маленькие буквы в выражении не различаются;
+                    m   -   указывает на то, что текст, по которому ведётся поиск, должен рассматриваться как состоящий из нескольких строк.
+                            (по умолчанию текст рассматривается как одна строка вне зависимости от того, чем она является на самом деле)
+                            Соответственно метасимволы "^" и "$" указывают на начало и конец всего текста.
+                                - если модификатор указан, то они будут указывать соответственно на начало и конец каждой строки текста;
+                    s   -   по-умолчанию, метасимвол "." не включает в свое определение символ перевода строки.
+                            Т.е. для многострочного текста выражение ".+" вернёт только первую строку, а не весь текст, как ожидается.
+                                - указание этого модификатора снимает это ограничение.

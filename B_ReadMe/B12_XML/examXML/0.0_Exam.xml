@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+    <rоot type="user">
+        <map>
+            <entry key = "JetBrains.UserIdOnMachine" value="454545-vsdalfjls-sdfrlz-aladfjl-adsfljsf"/>
+            <entry key = "key" value="value"/>
+            <entry key="one" value="1"/>
+        </map>
+        <node name = "comando">
+            <map> this is text</map>
+            <node name = "max">
+                <map name = "comandoss">any text</map>
+                <node name = "lessons">
+                    <map/>
+                </node>
+            </node>
+        </node>
+        <node name = "jetbrais">
+            <map>
+                <entry key = "user_id_on_machine" value="454545-vsdalfjls-sdfrlz-aladfjl-adsfljsf"/>
+            </map>
+            <node name = "privacy_policy">
+                <map>
+                    <entry key="accepted_version" value="1.1"/>
+                </map>
+            </node>
+        </node>
+        <node name = "properties">
+            <map/>
+        </node>
+    </rоot>
+    <root/>
+</preferences>

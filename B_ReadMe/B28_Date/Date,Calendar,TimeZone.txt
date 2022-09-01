@@ -1,0 +1,466 @@
+  - Date
+  - SimpleDateFormat
+  - Calendar
+  - GregorianCalendar
+  - TimeZone
+
+-------------------------------------------Классы Date, Calendar, TimeZone --------------------------------------------
+    1. Для удобной работы с датой и временем в Java используются классы Date и Calendar.
+       Оба класса находятся в библиотеке java.util.
+       Класс TimeZone используется совместно с классами Calendar и DateFormat
+
+    2. Класс SimpleDateFormat является подклассом класса DateFormat и позволяет определять собственные шаблоны форматирования
+для отображения даты и времени
+
+    3. Далее рассматриваются следующие классы:
+        - SimpleDateFormat  - форматирование
+        - Calendar          - календарь
+        - GregorianCalendar - григорианский календарь
+        - TimeZone          - временная зона
+
+
+------------------------------------------------- Класс Date -----------------------------------------------------------
+    1. Класс Date хранит время в миллисекундах начиная с 1 января 1970 года.
+        - данный класс имеет конструктор по умолчанию, который возвращает текущее время.
+                - Date()
+        - кроме этого можно создать объект Date используя конструктор, который принимает количество миллисекунд начиная с 1 января 1970 года
+                - Date(long milliseconds)
+        - для получения этого внутреннего времени используется метод getTime() (количество миллисекунд, прошедших с 1 января 1970 года)
+                - Date().getTime()      // 1649801705460l
+        - кроме этого уже после создания экземпляра класса можно изменить время с помощью setTime(long date)
+                - Date date = new Date(151515151515l);
+                     date.setTime(551515515l);
+
+    2. Методы класса Date:
+        - boolean after(Date date)          - если объект содержит более позднюю дату, чем указано в параметре date, то возвращается true
+        - boolean before(Date date)         - если объект содержит более раннюю дату, чем указано в параметре date, то возвращается true
+        - int compareTo(Date date)          - сравнивает даты. Возвращает
+                                                    - 0, если совпадают
+                                                    - отрицательное значение - если вызывающая дата более ранняя
+                                                    - положительное значение - если вызывающая дата более поздняя, чем в параметре
+        - boolean equals(Object object)     - если даты совпадают, то возвращается true
+        - long getTime()                    - возвращает количество миллисекунд, прошедших с полуночи 1 января 1970 года
+        - void setTime(long milliseconds)   - устанавливает время и дату в виде числа миллисекунд, прошедших с полночи 1 января 1970 года
+Простой пример использования Date для вывода даты в консоль.
+
+
+-------------------------------------------- Класс SimpleDateFormat ----------------------------------------------------
+    1. Для того, чтобы отображать дату и время в удобном формате можно использовать класс SimpleDataFormat :
+                    Date d = new Date();
+                        SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+                        SimpleDateFormat format2 = new SimpleDateFormat("День dd Месяц MM Год yyyy Время hh:mm");
+                            System.out.println(format1.format(d));              // 25.02.2013 09:03
+                            System.out.println(format2.format(d));              // День 25 Месяц 02 Год 2013 Время 09:03
+
+    2. При создании шаблона представления даты SimpleDateFormat использовались следующие параметры :
+            - dd — означает день;
+            - MM — месяц;
+            - yyyy — год;
+            - hh — часы;
+            - mm — минуты;
+            - В качестве разделитель можно использовать любой текст.
+
+    3. Класс SimpleDateFormat является подклассом класса DateFormat и позволяет определять собственные шаблоны форматирования
+    для отображения даты и времени.
+
+    4. Символы форматирования строки
+            - A - AM или PM
+            - d - день месяца (1-31)
+            - D - день в году (1-366)
+            - H - часы в формате AM/PM (1-12)
+            - K - часы в формате суток (1-24)
+            - M - минуты (0-59)
+            - S - секунды (0-59)
+            - W - неделя в году (1-53)
+            - y - год
+            - z - часовой пояс
+        Количество повторений символа определяет способ представления даты.
+                    - hh:mm:ss              -   01:30:38
+                    - h:m:s                 -    1:30:38
+
+    5. Вызывая методы
+            - applyPattern()    - имеет единственный строковый параметр, который указывает, какую часть даты (или времени)
+                                  нужно извлечь (например, "y" для обозначения года)
+            после чего вызываем
+            - format() c параметром Date(), возвратится строка, соответствующая данной части даты.
+            после чего, эту строку можно преобразовать в число с помощью Integer.parseInt()
+
+            Пример:
+                    public class DateFormatter {
+                        public static Integer[] getResult(Date date){
+                            Integer[] res=new Integer[6];
+                            SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd hh:mm:ss YYYY", Locale.getDefault());
+                            String[] letter={"d", "M", "y", "h", "m","s"};
+                            for(int n = 0; n < letter.length; n++) {
+                                formatter.applyPattern(letter[n]);
+                                res[n]= Integer.parseInt(formatter.format(date));
+                            }
+                        return res;
+                        }
+
+                    public static void main(String[] args) {
+                        Integer[] rs = getResult(new Date());
+                        System.out.println(new Date());                                 // Wed Apr 13 05:18:15 EEST 2022
+                        System.out.println(   "День: "      +   rs[0] +"\n"             // День: 13
+                                            + "Месяц: "     +   rs[1] +"\n"             // Месяц: 4
+                                            + "Год: "       +   rs[2] +"\n"             // Год: 2022
+                                            + "Час: "       +   rs[3] +"\n"             // Час: 5
+                                            + "Минута: "    +   rs[4] + "\n"            // Минута: 18
+                                            + "Секунда: "   +   rs[5] + "\n");          // Секунда: 15
+                        }
+                    }
+
+
+------------------------------------------------ Класс Calendar --------------------------------------------------------
+    1. Абстрактный класс Calendar позволяет работать с датой в рамках календаря,
+        - т.е он умеет прибавлять день, при этом учитывать високосные год и прочее,
+        - а также позволяет преобразовать время в миллисекундах в более удобном виде
+                - год, месяц, день, часы, минуты, секунды.
+
+    2. Единственной реализацией Calendar является класс GregorianCalendar,
+        также как и у даты конструктор по умолчанию возвращает календарь на текущий день, но можно задать его явно указав все параметры
+                    Calendar c = new GregorianCalendar();                       // календарь на текущую дату
+                    Calendar c2 = new GregorianCalendar(2014, 12, 21);          // календарь на 21.12.2014
+                        c2.add(Calendar.DAY_OF_YEAR, 1);                        // увеличиваем дату на 1 день
+                            System.out.println(c2.getTime());                               // 22.12.2014
+                        c2.add(Calendar.DAY_OF_YEAR, -1);                       // уменьшаем дату на 1 день
+                            System.out.println(c2.getTime());                               // 21.12.2014
+
+    3. Поля класса Calendar
+           - переменные:
+                - areFieldsSet (тип boolean)    - указывает, были ли установлены компоненты времени
+                - fields                        - это массив целочисленных значений, содержащий компоненты времени
+                - isSet                         - массив типа boolean, указывающий, был ли установлен специфический компонент времени
+                - time (тип long)               - содержит текущее время объекта
+                - isTimeSet (тип boolean)       - указывает, что было установлено текущее время
+
+    4. Методы класса  Calendar
+           - abstract void add(int field, int value)    -   добавляет value к компоненту времени или даты, указанному в параметре field
+                                                            (например, Calendar.HOUR)
+                                                            Чтобы отнять, используйте отрицательное значение.
+           - boolean after(Object calendar)	            -   возвращает значение true, если вызывающий объект класса Calendar
+                                                            содержит более позднюю дату, чем calendar
+           - boolean before(Object calendar)	        -   возвращает значение true, если вызывающий объект класса Calendar
+                                                            содержит более раннюю дату, чем calendar
+           - final void clear()	                        -   обнуляет все компоненты времени в вызывающем объекте
+           - final void clear(int field)	            -   обнуляет компонент, указанный в параметре field
+           - int get(int field)	                        -   возвращает значение одного компонента, например, Calendar.MINUTE
+           - synchronized static
+                Locale[] getAvailableLocales()	        -   возвращает массив объектов класса Locale, содержащий региональные данные
+           - synchronized static
+                Calendar getInstance()	                -   возвращает объект класса Calendar для региональных данных и часового пояса
+                                                            по умолчанию. Есть и другие перегруженные версии
+           - final Date getTime()	                    -   возвращает объекта класса Date, содержащий время, эквивалентное вызывающему объекту
+           - TimeZone getTimeZone()	                    -   возвращает часовой пояс
+           - final boolean isSet(int field)	            -   возвращает значение true, если указанный компонент времени указан
+           - void set(int field, int value)	            -   устанавливает компоненты даты или времени. Есть перегруженные версии
+           - final void setTime(Date date)	            -   устанавливает различные компоненты даты и времени через объект класса Date
+           - void setTimeZone(TimeZone timezone)	    -   устанавливает часовой пояс через объект класса TimeZone
+
+    5. Календарь достаточно мощный класс, который позволяет
+            - получать названия месяцев и дней недели,
+            - увеличивать или уменьшать различные параметры текущей даты, а также получать их.
+        Для удобства работы с ним нужно просто разобраться с типами данных, с которыми он работает:
+                    -   DAY_OF_YEAR         —   день года (0- 365)
+                    -   DAY_OF_MONTH        —   день месяца(какой по счету день в месяце 0 — 31)
+                    -   WEEK_OF_MONTH       —   неделя месяца
+                    -   WEEK_OF_YEAR        —   неделя в году
+                    -   MONTH               —   номер месяца
+                    -   Year                —   номер года
+                    -   Calendar.ERA        —   эра
+
+        Пример:
+                Calendar c = new GregorianCalendar(2015, 01, 25);                   // календарь на 25.01.2015
+                    System.out.println(c.get(Calendar.MONTH));                          // 01
+                    System.out.println(c.get(Calendar.YEAR));                           // 2015
+                    System.out.println(c.get(Calendar.DAY_OF_WEEK_IN_MONTH));           // 4
+                    System.out.println(c.get(Calendar.DAY_OF_WEEK));                    // 4
+                    System.out.println(c.get(Calendar.DAY_OF_YEAR));                    // 56
+                    System.out.println(c.get(Calendar.DAY_OF_MONTH));                   // 25
+
+
+------------------------------------------- Класс GregorianCalendar ----------------------------------------------------
+    1. Класс GregorianCalendar является подклассом Calendar, который представляет обычный Григорианский календарь.
+         - метод getInstance() класса Calendar       -   обычно возвращает объект класса GregorianCalendar,
+                                                         инициированный текущей датой и временем согласно региональным настройкам
+         - у класса есть два поля:
+                    - AD - до нашей эры
+                    - BC - наша эра
+         - кроме стандартных методов, которые есть в классе Calendar, у GregorianCalendar есть
+                    - метод  boolean isLeapYear(int year)        -  для проверки високосного года
+                                                                    (если год високосный, то возвращается true)
+              Пример:
+                    GregorianCalendar calendar = new GregorianCalendar();
+                        for (int year = 2012; year <= 2022; year++){
+                             if (calendar.isLeapYear(year) )
+                                 System.out.print(year + ", ");                          // 2012, 2016, 2020,
+                        }
+
+
+    2. Отсчёт месяцев идёт от нуля, поэтому декабрь будет одиннадцатым месяцем.
+       Чтобы не путаться с такими случаями, проще использовать понятные константы:
+                      GregorianCalendar calendar = new GregorianCalendar(2012,Calendar.DECEMBER,31);
+
+    3. Получать нужные отрезки времени можно через метод get ().
+            Например, узнать, какой месяц содержится в созданной нами дате можно так:
+                      int month = calendar.get(Calendar.MONTH);
+                      System.out.println(month);                                        // вернёт 11
+
+    4. Изменить состояние объекта можно через метод set ().
+            Например, установим новую дату у нашего объекта
+                      GregorianCalendar calendar = new GregorianCalendar(2012,Calendar.DECEMBER,31);
+                      calendar.set(2013, Calendar.FEBRUARY, 23);
+                      System.out.println(calendar.get(Calendar.MONTH));                 // возвращает 1 (февраль)
+
+    5. Можно сдвинуть дату на определённый период с помощью метода add ().
+                Например, отодвинем дату на два месяца
+                      GregorianCalendar calendar = new GregorianCalendar(2012,Calendar.JANUARY,31);
+                      calendar.add(Calendar.MONTH, 2);
+                      System.out.println(calendar.get(Calendar.MONTH));                 // возвращает 2 (март)
+
+    6. методы getTime() и setTime() работают с объектами Date и полезны для преобразования.
+                      GregorianCalendar calendar = new GregorianCalendar(2022, Calendar.JANUARY, 05);
+                             System.out.println(calendar.getTime());                    // Wed Jan 05 00:00:00 EET 2022
+                        calendar.setTime(new Date());
+                             System.out.println(calendar.getTime());                    // Wed Apr 13 05:36:00 EEST 2022
+
+    7. получение элементов даты такое же, как и описано в классе Calendar пункт 5
+
+
+
+--------------------------------------------- Класс TimeZone ----------------------------------------------------------
+    1. Класс TimeZone предназначен для совместного использования с классами Calendar и DateFormat.
+            - этот класс абстрактный, поэтому от него порождать объекты нельзя.
+            - вместо этого определен статический метод getDefault(), который возвращает экземпляр наследника TimeZone с настройками,
+              взятыми из операционной системы, под управлением которой работает JVM.
+
+    2. TimeZone имеет статический метод getTimeZone(String ID),
+       используя который можно указать наименование конкретного временного пояса, для которого необходимо получить объект TimeZone.
+
+    3. Набор полей, определяющих возможный набор параметров для getTimeZone, нигде явно не описывается.
+            Но имеется статический метод getAvailableIds(), возвращающий список возможных значений наименование временных зон типа String[],
+       который можно использовать в методе getTimeZone.
+            Так можно определить набор возможных параметров для конкретного временного пояса
+       относительно Гринвича String[] getAvailableIds(int offset).
+
+    4. Рассмотрим пример, в котором на консоль последовательно выводятся:
+            - временная зона по умолчанию;
+            - список всех возможных временных зон;
+            - список временных зон, которые совпадают с временной зоной Москвы.
+
+                 public class TimeZoneList {
+                    private final int    hour       = 1000 * 60 * 60;
+                    private final String TEMPL_TZ   = "%s (%s)";
+                    private final String TEMPL_OFFS = "hour offset=(%d)";
+
+                    String align(String str, int len) {
+                        if (len - str.length() > 0){
+                            char[] buf = new char[len - str.length()];
+                            Arrays.fill (buf, ' ');
+                        return str + new String(buf);
+                        } else
+                    return str.substring(0, len);
+                    }
+
+                    private void drawTimeZoneParam(final TimeZone tz) {
+                        String line = null;
+                        line  = String.format(TEMPL_TZ, tz.getID(),tz.getDisplayName());
+                        line  = align(line, 64);
+                        line += String.format(TEMPL_OFFS, tz.getRawOffset() / hour);
+                    System.out.println(line);
+                    }
+
+                    public TimeZoneList() {
+                        TimeZone tz = TimeZone.getDefault();
+                        int rawOffset = tz.getRawOffset();
+                        System.out.println("Текущая TimeZone : " + tz.getID() + " (" + tz.getDisplayName() + ")\n");
+
+                        System.out.println("Доступные TimeZone");                            // Display all available TimeZones
+                        String[] timezones = TimeZone.getAvailableIDs();
+                        for (int cnt = 0; cnt < timezones.length; cnt++){
+                            tz = TimeZone.getTimeZone(timezones[cnt]);
+                            drawTimeZoneParam(tz);
+                        }
+
+                        System.out.println("");
+                        System.out.println("Список TimeZone, соответствующие текущей");       // All available TimeZones same as for Moscow
+                        timezones = TimeZone.getAvailableIDs(rawOffset);
+                        for(int cnt = 0;cnt < timezones.length;cnt++){
+                            tz = TimeZone.getTimeZone(timezones[cnt]);
+                            drawTimeZoneParam(tz);
+                        }
+                    }
+
+                    public static void main(String[] args) {
+                        new TimeZoneList();
+                        System.exit(0);
+                    }
+                 }
+
+        - метод align выполняет выравнивание для отображения смещения по времени TimeZone от среднего времени по Гринвичу GMT — времени
+    меридиана,  проходящего через прежнее место расположения Гринвичской обсерватории около Лондона.
+        - метод drawTimeZoneParam отображает параметры TimeZone
+        - в конструкторе класса TimeZoneList сначала определяется текущая TimeZone, (берет данные из текущего компьютера)
+    после чего выводится список возможных TimeZone
+        - используя метод getAvailableIDs получаем список TimeZone, у которых смещение по времени соответствует текущей зоне
+
+        Результат:
+                Текущая TimeZone : Europe/Moscow (Moscow Standard Time)
+
+                Доступные TimeZone
+                    Etc/GMT+12 (GMT-12:00)                   hour offset=(-12)
+                    Etc/GMT+11 (GMT-11:00)                   hour offset=(-11)
+                    Pacific/Midway (Samoa Standard Time)     hour offset=(-11)
+                    Pacific/Niue (Niue Time)                 hour offset=(-11)
+                    Pacific/Pago_Pago (Samoa Standard Time)  hour offset=(-11)
+                    Pacific/Samoa (Samoa Standard Time)      hour offset=(-11)
+                    . . .                                                                       //список усечен
+
+                Список TimeZone, соответствующие текущей
+                    Asia/Baku (Azerbaijan Time)              hour offset=(4)
+                    Asia/Dubai (Gulf Standard Time)          hour offset=(4)
+                    Asia/Muscat (Gulf Standard Time)         hour offset=(4)
+                    Asia/Tbilisi (Georgia Time)              hour offset=(4)
+                    . . .                                                                       //список усечен
+
+        5.0 TimeZone UTC
+                - в практике не часто приходится использовать различные TimeZone.
+                - задачи, где разработчику приходится учитывать временной сдвиг, относятся к специфической деятельности человечества.
+                        например,
+                            - в расписании движения пассажирских поездов РФ указывается привязка к московскому и местному времени.
+                            - а по какому времени ведет пассажирский состав машинист дальнего следования?
+                            - эта несложная задача решается в рамках министерства ЖД транспорта.
+                            - если состав выходит за пределы страны,
+                              то время движения (расписание) должно быть согласовано с соответствующей стороной.
+                            - аналогично это касается и полетов воздушного транспорта,
+                              где все согласования между различными аэропортами выполняются по времени
+
+        5.1 UTC - всеми́рное координи́рованное вре́мя (Coordinated Universal Time).
+             - UTC было введено вместо устаревшего среднего времени по Гринвичу (GMT),
+             поскольку GMT является неравномерной шкалой и связана с суточным вращением Земли.
+             - шкала UTC основана на равномерной шкале атомного времени и является более удобной для гражданского использования.
+
+        5.2. Как может влиять TimeZone, с точки зрения разработчика, на результаты работы программы?
+                Например ситуация, что
+                    - время формируется на сервере (объект типа Date) и отправляется удаленному пользователю по сети.
+                    - типично для WEB-приложений, у которых сервер и пользователи (браузеры) могут быть расположены в разных временных зонах.
+                    - для отправки объекта Date по сети (Internet) используется сериализация, позволяющая упаковать объект в набор байт
+                      на сервере и восстановить объект типа Date на клиенте (браузере).
+                            - и вот здесь Вас может ожидать «засада».
+                    - если сервер и клиент имеют разные TimeZone (часовые пояса), то на клиенте будет восстановлен объект Date
+                      с временем сервера.
+                    - если объект будет отправлен с клиента на сервер, то на сервере объект десериализуется с временем клиента.
+
+             Как выход, объект Date можно конвертировать не сервере в текстовый вид, используя DateFormat, и на клиенте его восстановить
+             Но Java позволяет учитывать различные TimeZone, не оказывающие влияние на сериализацию/десериализацию объектов типа Date.
+
+        Пример:
+              - TimeZoneExample, в котором время будем привязывать к одной из сторон (желательно серверной),
+                а на компьютере устанавливать различные зоны (UTC, Москва, Владивосток)*
+                    * - для установки определенной временной зоны необходимо в панели управления окно «Date and Time»
+                        выбрать соответствующую TimeZone.
+
+                public class TimeZoneExample{
+	                    private  final  String  TIMEZONE_utc;
+	                    private  final  String  TIMEZONE_msc;
+	                    private  final  String  DATETIME_format;
+
+	                public TimeZoneExample(){
+	                    // TimeZone.setDefault(TimeZone.getTimeZone(TIMEZONE_utc));**
+
+	                    TIMEZONE_utc    = "UTC";
+	                    TIMEZONE_msc    = "Europe/Moscow";
+	                    DATETIME_format = "yyyy-MM-dd HH:mm:ss.SS";
+
+                        Date date   = new Date();
+                        Date dt_msk = null;
+                        TimeZone tm_curr = TimeZone.getDefault();
+                        System.out.println ("Current TimeZone : " + tm_curr.getID() + " (" + tm_curr.getDisplayName() + ")");
+                        System.out.println ("useDaylightTime : "  + tm_curr.useDaylightTime() + "\n");
+
+                        TimeZone tm_utc = TimeZone.getTimeZone(TIMEZONE_utc);
+                        TimeZone tm_msk = TimeZone.getTimeZone(TIMEZONE_msc);
+
+                        DateFormat df_utc = new SimpleDateFormat(DATETIME_format);
+                        DateFormat df_msk = new SimpleDateFormat(DATETIME_format);
+
+                        df_utc.setTimeZone(tm_utc);
+                        df_msk.setTimeZone(tm_msk);
+
+                        String date_utc = df_utc.format(date);
+                        String date_msk = df_msk.format(date);
+
+                        try {
+                            dt_msk = df_msk.parse(date_msk);
+                        } catch (ParseException e) {}
+
+                        System.out.println ("UTC\n" + date);
+                        System.out.println (date_utc);
+                        System.out.println (tm_utc.getRawOffset());
+                        System.out.println ();
+                        System.out.println ("Moscow\n" + dt_msk);
+                        System.out.println (date_msk);
+                    }
+
+                    public static void main(String[] args){
+                        new TimeZoneExample();
+                        System.exit(0);
+                    }
+                }
+
+        В примере используется три TimeZone:
+                - tm_curr   - текущая
+                - tm_utc    - зона UTC
+                - tm_msk    - зона Москвы
+
+        Для двух временных зон (tm_utc, tm_msk) выводим в консоль объект Date без форматирования и с форматированием
+    с использованием tm_utc, tm_msk и DateFormat/SimpleDateFormat.
+
+        a) Первоначально на компьютере устанавливаем зону UTC и получаем:
+                Current TimeZone : "UTC" (Coordinated Universal Time)
+                useDaylightTime : false
+
+                UTC
+                Fri Dec 23 08:50:24 UTC 2016                                        //время по Timezone моего компьютера
+                2016-12-23 08:50:24.547                                                     //время по Timezone UTC
+
+                Moscow
+                Fri Dec 23 08:50:24 UTC 2016                                        //время по Timezone моего компьютера
+                2016-12-23 11:50:24.547                                                     //время по Timezone Moscow
+
+                        В этом случае, для зоны UTC и для зоны Москвы неформатированные даты (date, dt_msk) совпадают,
+                но вот с учетом временной зоны форматированные даты отличаются на соответствующие 3 часа.
+
+        б) устанавливаем временную зону Москвы и получаем:
+                Current TimeZone : "Europe/Moscow" (Moscow Standard Time)
+                useDaylightTime : false
+
+                UTC
+                Fri Dec 23 11:51:18 MSK 2016
+                2016-12-23 08:51:18.915
+
+                Moscow
+                Fri Dec 23 11:51:18 MSK 2016
+                2016-12-23 11:51:18.915
+
+                        В этом случае - смещения по времени для дат UTC и Москвы поменялись местами.
+
+        в) устанавливаем временную зону Владивостока и получаем:
+                Current TimeZone : "Asia/Vladivostok" (Vladivostok Time)
+                useDaylightTime : false
+
+                UTC
+                Fri Dec 23 19:55:35 VLAT 2016
+                2016-12-23 09:55:35.924
+
+                Moscow
+                Fri Dec 23 19:55:35 VLAT 2016
+                2016-12-23 12:55:35.924
+
+                        В этом случае - объект даты создается во временной зоне Владивостока.
+                Время для TimeZone Москвы и UTC соответствуют.
+
+        Если приложение должно работать в определенной временной зоне TimeZone, можно,
+    используя метод setDefault класса TimeZone, установить соответствующую временную зону в приложении при работе с датой.
+            ** - в примере можно было бы снять комментарий с первой строки и установить сответствующую временную зону в приложении,
+        не оказывая влияния на временную зону в настройках компьютера

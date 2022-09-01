@@ -1,0 +1,228 @@
+ - шифрование паролей
+ - шифрование строки
+
+------------------------------------------------ Шифрование паролей ----------------------------------------------------
+        1. Для надежного шифрования паролей, лучше применять хэш - функции, которые удовлетворяют условиям:
+                - алгоритм преобразования исключает возможность наличия одинаковых ключей для двух разных строк
+                - итоговый ключ не содержит никакой информаации из преобразумемых данных
+
+        2. java.security предлагает для использования две функции, генерирующие уникальные ключи
+                   - MD5
+                   - SHA-1
+                   - SHA-256
+
+        3. Пример (кодировка пароля и проверка пароля на соответствие)
+
+        // ------------------------------------------- класс шифрования ключа ------------------------------------------
+             public class PasswordEncrypter {
+
+             //------- кодирует по алгоритму SHA-1, SHA-256 или MD-5 (хэш-ключ имеет вид массива байтов) ---------------
+                public static byte[] encrypt(String password, String algorithm) throws IllegalArgumentException {
+                    try{
+                        MessageDigest d = MessageDigest.getInstance(algorithm);     // классу передаем название алгоритма
+                        d.update(password.getBytes());                              // передаем пароль (по которому генерируется хэш-ключ)
+                        return d.digest();                                          // получаем хэш -ключ, возвращаем - массив байтов
+                    }catch(NoSuchAlgorithmException nos){
+                        throw new IllegalArgumentException("Illegal algorithm value");
+                    }
+                }
+
+             //---------------------------------------------------------------------------------------------------------
+                 /*
+                        Поскольку в результате использования алгоритмов  SHA-1, SHA-256 или MD-5 и хэширования данных
+                    можем получить ключ, в котором будут также и непечатаемые символы:
+                            - символ конца строки,
+                            - табуляция и тд)
+                    можно преобразовывать результат кодировки  (хэш - ключ) по алгоритму Base64
+                        В результате такого кодированнный хэш-ключ будет иметь - СИМВОЛЬНЫЙ ВИД
+                */
+
+             //----------- метод кодирует по алгоритму BASE 64 (в результате ключ имеет символьный вид) ----------------
+                public static String encryptAndEncode(String password, String algorithm) throws IllegalArgumentException {
+                    BASE64Encoder enc = new BASE64Encoder();
+                    String encoded = enc.encode(encrypt(password, algorithm));
+                    enc = null;
+                return encoded;
+                }
+             }
+
+
+
+        // ---------------------------------------- класс проверяет совпадение паролей  --------------------------------
+
+             public final class PasswordComparer {
+                 private String value = null;                                            //пароль, который хранится в базе
+                 private MessageDigest d = null;
+
+                 public PasswordComparer(String value, boolean decode, String algorithm) {
+                     if (decode == true) {                                              //декодирование пароля из базы по алгоритму BASE64
+                         try {
+                             BASE64Decoder dec = new BASE64Decoder();
+                             this.value = new String(dec.decodeBuffer(value));
+                             dec = null;
+                         } catch (IOException e) {
+                             System.err.println(e.getMessage());
+                         }
+                     } else {
+                         this.value = value;
+                     }
+
+                     try {
+                         d = MessageDigest.getInstance(algorithm);
+                     } catch (NoSuchAlgorithmException e) {
+                         throw new IllegalArgumentException("Illegal algoritm value");
+                     }
+                 }
+
+                 //-----------------------------  проверка на количество попыток ввода ---------------------------------
+
+                 private int failedCount = 0;
+                 private static int maxFailedCount = 3;
+
+                 public int getFailedCount() {                                     // возвращает число неудачных попыток
+                     return failedCount;
+                 }
+
+                 private synchronized void incrementFailedCount() {               // увеличивает число неудачных попыток
+                     failedCount++;
+                 }
+
+                 private synchronized void resetFailedCount() {                        // сбрасывает счетчик неудач на 0
+                     failedCount = 0;
+                 }
+
+                 //---------------------------------- проверка на совпадение хэш - ключей ------------------------------
+
+                 public synchronized boolean isEqual(String password) throws IllegalAccessException {
+                     boolean success = false;
+
+                     if (getFailedCount() == maxFailedCount)                  // проверка, достигнут максим возможностей
+                         throw new IllegalAccessException("максимальное число вводов пароля");
+
+                     try {                                                                     // сравнение хэш - ключей
+                         String encPassword;
+                         encPassword = new String(PasswordEncrypter.encrypt(password, d.getAlgorithm()));
+                         success = d.isEqual(value.getBytes(), encPassword.getBytes());
+                     } catch (IllegalArgumentException e) {
+                         System.err.println(e.getMessage());
+                     }
+
+                     if (success == true) {                                            //увеличение/сбрасывание счетчика
+                          resetFailedCount();
+                     } else {
+                         incrementFailedCount();
+                     }
+
+                     return success;                                                              // результат сравнения
+                 }
+             }
+
+
+
+        // ------------------------------------- проверка классов шифрования / совпадения  -----------------------------
+             public class Main {
+                 public static void main(String[] args) throws IllegalAccessException {
+
+                     // -------------------------------- зашифровали пароль -------------------------------------
+                         String pwd = "1291328diMA";
+                         String algorithm = "SHA-1";
+
+                             String encrypted = new String(PasswordEncrypter.encrypt(pwd, algorithm));
+                             String encoded = PasswordEncrypter.encryptAndEncode(pwd, algorithm);
+
+                                 System.out.println("Зашифрованный пароль: " + encrypted);
+                                 System.out.println("Кодированный шифр: " + encoded);
+
+                     // ------------------------------- проверка на совпадение  ---------------------------------
+                         PasswordComparer ps = new PasswordComparer(encoded, true, algorithm);
+
+                         String[] passwordInput = {"2334", "dljfdljf",pwd};
+
+                         for (String el : passwordInput) {
+                             System.out.println(ps.isEqual(el));
+                         }
+                 }
+             }
+
+
+------------------------------------------------- Шифрование строки ----------------------------------------------------
+        1. Для шифровки произвольного текста существует много алгоритмов, одним из которых является DES
+                - в JDK пакет javax.crypto позволяет широфвать и дешифровать тексты при помощи алгоритма DES
+
+        2. Пример (шифрование / дешифрование строки)
+                public class DesEncrypter {
+                    static Cipher ecipher = null;
+                    static Cipher dcipher = null;
+
+                    public DesEncrypter(SecretKey key) {
+                        try {
+                            ecipher = Cipher.getInstance("DES");
+                            dcipher = Cipher.getInstance("DES");
+
+                            ecipher.init(Cipher.ENCRYPT_MODE, key);
+                            dcipher.init(Cipher.DECRYPT_MODE, key);
+                        }catch (NoSuchPaddingException | NoSuchAlgorithmException el) {
+                            //пусто
+                        }catch (InvalidKeyException ma) {
+                            //пусто
+                        }
+                    }
+
+                    public String encrypt(String str) {
+                        try {
+                            byte[] utf8 = str.getBytes("utf8");
+                            byte[] enc = ecipher.doFinal(utf8);
+                            return new BASE64Encoder().encode(enc);
+                        }catch (UnsupportedEncodingException | BadPaddingException e) {
+                            //пусто
+                        }catch (IllegalBlockSizeException e) {
+                            //пусто
+                        }
+                        return null;
+                    }
+
+                    public String decrypt(String str) {
+                        try {
+                            byte[] dec = new BASE64Decoder().decodeBuffer(str);
+                            byte[] utf8 = dcipher.doFinal(dec);
+                            return new String(utf8,"utf8");
+                        } catch (IOException | BadPaddingException e) {
+                            //пусто
+                        } catch (IllegalBlockSizeException el) {
+                            //пусто
+                        }
+                        return null;
+                    }
+
+                    public static void main(String[] args){
+                        try{
+                            SecretKey key = KeyGenerator.getInstance("DES").generateKey();      //ключ для алгоритма шифрования
+
+                            DesEncrypter encrypter = new DesEncrypter(key);
+                                String encrypted = encrypter.encrypt("Проверка 22555");
+                                String decrypted = encrypter.decrypt(encrypted);
+
+                            System.out.println("Расшифровано: " + encrypted);
+                            System.out.println("Расшифровано: " + decrypted);
+                        }catch (NoSuchAlgorithmException e){
+                            //пусто
+                        }
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

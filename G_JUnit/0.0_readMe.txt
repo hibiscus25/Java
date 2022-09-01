@@ -1,0 +1,270 @@
+
+    1. JUnit – это Java фреймворк для тестирования, т. е. тестирования отдельных участков кода, например, методов или классов
+
+       Тестирование программного обеспечение можно разделить на два вида:
+            - тестирование черного ящика;
+            - тестирование белого ящика.
+
+            Во время тестирования программы как черного ящика внутренняя структура приложения в расчет не принимается.
+                Все, что имеет значение, это функциональность, которую приложение должно обеспечить.
+            При тестировании программы как белого ящика во внимание принимается внутренняя структура, т.е. класс и методы.
+
+       Кроме этого, тестирование можно разделить на четыре уровня:
+            - юнит тесты                    — тестирование отдельных участков кода
+                                              Юнит тестирование по определению является тестированием белого ящика
+            - интеграционное тестирование   — тестирование взаимодействия и совместной работы компонентов
+            - системное тестирование        — тестирование всей системы как целого
+            - приемное тестирование         — итоговое тестирование готовой системы на соответствие требованиям
+
+
+
+    2. Аннотации jUnit:
+        - @Ignore                        – говорит, что метод будет проигнорирован в момент проведения тестирования
+
+        - методы должны быть public void:
+           - @Test                          – определяет что метод method() является тестовым
+                - (expected = Exception.class)   – указывает на то, что в данном тестовом методе вы преднамеренно ожидаете Exception
+                - (timeout = 100)                – указывает, что тестируемый метод не должен занимать больше чем 100 миллисекунд
+                                                        - если больше - провалиться
+           - @Before                        – метод будет выполнятся перед каждым тестируемым методом @Test
+                                              Размещаются предустановки для теста
+           - @After                         – метод будет выполнятся после каждого тестируемого метода @Test
+                                                Размещются операции освобождения ресурсов после теста (очистка тестовых данных)
+
+        - методы должны быть public static void:
+           - @BeforeClass                   – метод будет выполнятся в начале всех тестов, а точней в момент запуска тестов
+                                              (перед всеми тестами @Test)
+                                                Используется в случае, когда:
+                                                    - класс содержит несколько тестов, использующих различные предустановки
+                                                      либо когда несколько тестов используют одни и те же данные,
+                                                      чтобы не тратить время на их создание для каждого теста
+           - @AfterClass                    – метод будет выполнятся после всех тестов.
+
+
+        Примеры:
+                @Test(expected = NullPointerException.class)
+                public void testToHexStringWrong() {
+                    StringUtils.toHexString(null);
+                }
+
+                @Test(timeout = 1000)
+                  public void infinity() {
+                      while (true);
+                }
+
+                @Ignore
+                @Test(timeout = 1000)
+                public void infinity() {
+                      while (true);
+                }
+
+
+
+    3. Основные методы класса Assert для проверки:
+            - fail(String)                                          – указывает на то что бы тестовый метод завалился при этом выводя
+                                                                      текстовое сообщение
+            - assertTrue([message], boolean condition)              – проверяет, что логическое условие истинно
+            - assertFalse(String message, boolean condition)        – проверка на равенство условия condition значению false
+
+            - assertsEquals([String message], expected, actual)     – проверяет, что два значения совпадают
+                                                                        - для массивов проверяются ссылки, а не содержание массивовъ
+            - assertArrayEquals(byte[] expecteds, byte[] actuals)   – проверка массивов на равенство
+
+            - assertNull([message], object)                         – проверяет, что объект является пустым null
+            - assertNotNull([message], object)                      – проверяет, что объект не является пустым null
+
+            - assertSame([String], expected, actual)                – проверяет, что обе переменные относятся к одному объекту.
+            - assertNotSame([String], expected, actual)             – проверяет, что обе переменные относятся к разным объектам.
+
+
+
+    4. Основные методы класса Assert для проверки:
+         Правила тeстирования, JUnit Rule:
+            JUnit позволяет использовать определенные разработчиком правила до и после выполнения теста, которые расширяют функционал
+
+            Например,   есть встроенные правила для задания таймаута для теста (Timeout), для задания ожидаемых исключений
+                        (ExpectedException), для работы с временными файлами(TemporaryFolder) и др.
+
+            Для объявления правила необходимо создать public не static поле типа производного от MethodRule и аннотировать
+            его с помощью ключевого слова Rule.
+
+            public class JUnitOtherTest{
+                @Rule
+                public final TemporaryFolder folder = new TemporaryFolder();
+
+                @Rule
+                public final Timeout timeout = new Timeout(1000);
+
+                @Rule
+                public final ExpectedException thrown = ExpectedException.none();
+
+                @Ignore
+                @Test
+                public void anotherInfinity() {
+                    while (true);
+                }
+
+                @Test
+                public void testFileWriting() throws IOException{
+                    final File log = folder.newFile("debug.log");
+                    final FileWriter logWriter = new FileWriter(log);
+                    logWriter.append("Hello, ");
+                    logWriter.append("World!!!");
+                    logWriter.flush();
+                    logWriter.close();
+                }
+
+                @Test
+                public void testExpectedException() throws IOException{
+                    thrown.expect(NullPointerException.class);
+                    StringUtils.toHexString(null);
+                }
+            }
+
+
+         Наборы тестов, JUnit Suite, SuiteClasses
+            Запуск теста может быть сконфигурирован с помощью аннотации @RunWith.
+            Тестовые классы, которые содержат в себе тестовые методы, можно объединить в наборы тестов (Suite).
+            Например, создано два класса тестирования объектов : TestFilter, TestConnect.
+            Эти два тестовых класса можно объединить в один тестовый класс TestWidgets.java :
+
+            import org.junit.runner.RunWith;
+            import org.junit.runners.Suite;
+
+            @RunWith(Suite.class)
+            @Suite.SuiteClasses ({
+                TestFilter.class,
+                TestConnect.class
+            })
+
+            public class TestWidgets {}
+            Для настройки запускаемых тестов используется аннотация @SuiteClasses, в которую включены тестовые классы.
+
+
+         Аннотация Categories
+            Аннотация Categories позволяет объединить тесты в категории (группы). Для этого в тесте определяется категория @Category,
+            после чего настраиваются запускаемые категории тестов в Suite. Это может выглядеть следующим образом:
+
+            public class JUnitStringUtilsCategoriesTest extends Assert{
+                //...
+
+                @Category (Unit.class)
+                @Test
+                public void testIsEmpty() {
+                   //...
+                }
+                //...
+            }
+
+            @RunWith (Categories.class)
+            @Categories.IncludeCategory (Unit.class)
+            @Suite.SuiteClasses ({
+                JUnitOtherTest.class,
+            	JUnitStringUtilsCategoriesTest.class
+            })
+            public class JUnitTestSuite {}
+
+
+         Аннотация, JUnit Parameterized
+            Аннотация Parameterized позволяет использовать параметризированные тесты.
+            Для этого в тест-классе объявляется статический метод, возвращающий список данных, которые будут использованы
+            в качестве аргументов конструктора класса.
+
+            @RunWith (Parameterized.class)
+            public class JUnitStringUtilsParameterizedTest extends Assert{
+                private final CharSequence testData;
+                private final boolean expected;
+
+                public JUnitStringUtilsParameterizedTest(final CharSequence testData, final boolean expected){
+                    this.testData = testData;
+                    this.expected = expected;
+                }
+
+                @Test
+                public void testIsEmpty () {
+                    final boolean actual = StringUtils.isEmpty (testData);
+                    assertEquals(expected, actual);
+                }
+
+                @Parameterized.Parameters
+                public static List<Object[]> isEmptyData() {
+                    return Arrays.asList(new Object[][] {
+                        { null, true },
+                        { "", true },
+                        { " ", false },
+                        { "some string", false },
+                    });
+                }
+            }
+
+
+         Параметризирование метода : Theories.class, DataPoints, DataPoint, Theory
+            Аннотация Theories параметризирует тестовый метод, а не конструктор.
+            Данные помечаются с помощью @DataPoints и @DataPoint, тестовый метод — с помощью @Theory.
+            Тест, использующий этот функционал, может выглядеть примерно следующим образом :
+
+            @RunWith (Theories.class)
+            public class JUnitStringUtilsTheoryTest extends Assert{
+                @DataPoints
+                public static Object[][] isEmptyData = new Object[][] {
+                    { "", true },
+                    { " ", false },
+                    { "some string", false },
+                };
+
+                @DataPoint
+                public static Object[] nullData = new Object[] { null, true };
+
+                @Theory
+                public void testEmpty(final Object... testData)
+                {
+                    final boolean actual =
+                                  StringUtils.isEmpty ((CharSequence) testData[0]);
+                    assertEquals(testData[1], actual);
+                }
+            }
+
+
+         Порядок выполнения тестов
+            Если необходимо выполнить тест в определенном порядке, то можно воспользоваться
+            аннотацией @FixMethodOrder(MethodSorters.NAME_ASCENDING), определенной в JUnit 4.11. Например :
+
+            @FixMethodOrder(MethodSorters.NAME_ASCENDING)
+            public class MyTest {
+                @Test
+            	public void test01(){...}
+                @Test
+            	public void test02(){...}
+            	...
+                @Test
+            	public void test09(){...}
+            }
+
+            В противном случае можно использовать следующие 2 подхода.
+
+            void test01();
+            void test02();
+            ...
+            void test09();
+
+            @Test
+            public void testOrder1() { test1(); test3(); }
+
+            @Test(expected = Exception.class)
+            public void testOrder2() { test2(); test3(); test1(); }
+
+            @Test(expected = NullPointerException.class)
+            public void testOrder3() { test3(); test1(); test2(); }
+
+            @Test
+            public void testAllOrders() {
+                for (Object[] sample: permute(1, 2, 3)) {
+                    for (Object index: sample) {
+                        switch (((Integer) index).intValue()) {
+                            case 1: test1(); break;
+                            case 2: test2(); break;
+                            case 3: test3(); break;
+                        }
+                    }
+                }
+            }
